@@ -84,7 +84,7 @@ if(isset($_POST['SubmitButton'])){
     <form action="#" method="post" >
 
         <div class=" textfieldContainer">
-            <span class="productattrText"> How Many Product do you Create? </span> <br>
+            <span class="productattrText"> How Many Product Do You Want To Create? </span> <br>
             <input type="number" name="number_product" value="2">
         </div>
         <br>
