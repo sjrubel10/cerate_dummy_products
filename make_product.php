@@ -1,6 +1,14 @@
 <?php
 require "functions/functions.php";
 
+
+//wh_deleteProduct(170); //to trash a product
+/*for( $i = 100; $i< 12481; $i++ ){
+    wh_deleteProduct( $i, TRUE); //to permanently delete a product
+}*/
+
+//die();
+//create_simple_product();
 $number_product = 0;
 $is_block = 'none';
 
@@ -107,19 +115,11 @@ if(isset($_POST['SubmitButton'])){
 
     </form>
 
-<!--    --><?php //if( $number_product > 0 ){?>
     <div class="successfulmessage " style="display: <?php echo $is_block?>">
         <span class="successfulmessagetext"> <?php echo $number_product.' Product Is Successfully Created '; ?> </span>
-    </div><!--
-    <?php /*} else {*/?>
-        <div class="successfulmessage ">
-            <span class="successfulerrormessagetext"> Please Provide Number of Product Do You Create  </span>
-        </div>
-    --><?php /*}*/?>
+    </div>
+
 </div>
-
-
-
 
 </body>
 </html>

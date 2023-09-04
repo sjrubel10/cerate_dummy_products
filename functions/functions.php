@@ -101,3 +101,109 @@ function permanent_delete_post( $post_id ){
 
 }
 
+function wh_deleteProduct( $id, $force = FALSE )
+{
+    $product = wc_get_product($id);
+
+    if(empty($product))
+        return new WP_Error(999, sprintf(__('No %s is associated with #%d', 'woocommerce'), 'product', $id));
+
+    // If we're forcing, then delete permanently.
+    if ($force)
+    {
+        if ($product->is_type('variable'))
+        {
+            foreach ($product->get_children() as $child_id)
+            {
+                $child = wc_get_product($child_id);
+                $child->delete(true);
+            }
+        }
+        elseif ($product->is_type('grouped'))
+        {
+            foreach ($product->get_children() as $child_id)
+            {
+                $child = wc_get_product($child_id);
+                $child->set_parent_id(0);
+                $child->save();
+            }
+        }
+
+        $product->delete(true);
+        $result = $product->get_id() > 0 ? false : true;
+    }
+    else
+    {
+        $product->delete();
+        $result = 'trash' === $product->get_status();
+    }
+
+    if (!$result)
+    {
+        return new WP_Error(999, sprintf(__('This %s cannot be deleted', 'woocommerce'), 'product'));
+    }
+
+    // Delete parent product transients.
+    if ($parent_id = wp_get_post_parent_id($id))
+    {
+        wc_delete_product_transients($parent_id);
+    }
+    return true;
+}
+
+function create_simple_product() {
+    // that's CRUD object
+    $product = new \WC_Product_Simple();
+
+    error_log( print_r( $product, true ) );
+    die();
+
+    $product->set_name( 'Single' ); // product title
+    $product->set_id( 25 ); // product id
+
+    $product->set_slug( 'woo-single' );
+    $product->set_sku( 'woo-single' );
+
+    $product->set_regular_price( 3.00 ); // in current shop currency
+    $product->set_price( 3.00 ); // in current shop currency
+
+    //you can also add a full product description
+    $product->set_description( 'This is a simple, virtual product.' );
+
+    $product->set_image_id( 90 );
+
+    // let's suppose that our 'Accessories' category has ID = 19
+    $product->set_category_ids( array( 20 ) );
+    // you can also use $product->set_tag_ids() for tags, brands etc
+    $product->set_tag_ids( array( 30, 40 ) );
+
+    // Set Price
+    $product->set_sale_price( 2.00 );
+    // Sale schedule
+    $product->set_date_on_sale_from( '2022-05-01' );
+    $product->set_date_on_sale_to( '2022-05-31' );
+
+
+    // You do not need it if you manage stock at product level (below)
+    $product->set_stock_status( 'instock' ); // 'instock', 'outofstock' or 'onbackorder'
+
+    // Stock management at product level
+    $product->set_manage_stock( true );
+    $product->set_stock_quantity( 5 );
+    $product->set_backorders( 'no' ); // 'yes', 'no' or 'notify'
+    $product->set_low_stock_amount( 2 );
+    //
+    $product->set_sold_individually( true );
+
+    // Dimensions and Shipping
+    $product->set_weight( 0.5 );
+    $product->set_length( 50 );
+    $product->set_width( 50 );
+    $product->set_height( 30 );
+
+    $product->save();
+
+    return $product;
+}
+
+
