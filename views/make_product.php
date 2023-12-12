@@ -33,7 +33,7 @@ if(isset($_POST['SubmitButton'])){
         </div>
         <br>
         <div class="textfieldContainer">
-            <span class="productattrText">Select product Type</span><br>
+            <span class="productattrText">Select Product Type</span><br>
             <select id="product-type" name="product-type">
                 <optgroup label="Product Type">
                     <option value="simple" selected="selected">Simple product</option>

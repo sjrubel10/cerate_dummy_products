@@ -27,6 +27,107 @@ function generateRandomString( $length ) {
     return $outputString;
 }
 
+function create_product_variation( $product_id, $variation_data ){
+    // Get the Variable product object (parent)
+    $product = wc_get_product( $product_id );
+
+    $variation_post = array(
+        'post_title'  => $product->get_name(),
+        'post_name'   => 'product-'.$product_id.'-variation',
+        'post_status' => 'publish',
+        'post_parent' => $product_id,
+        'post_type'   => 'product_variation',
+        'guid'        => $product->get_permalink()
+    );
+
+    // Creating the product variation
+    $variation_id = wp_insert_post( $variation_post );
+
+    // Get an instance of the WC_Product_Variation object
+    $variation = new WC_Product_Variation( $variation_id );
+
+    // Iterating through the variations attributes
+    foreach ($variation_data['attributes'] as $attribute => $term_name )
+    {
+        $taxonomy = 'pa_'.$attribute; // The attribute taxonomy
+
+        // If taxonomy doesn't exists we create it (Thanks to Carl F. Corneil)
+        if( ! taxonomy_exists( $taxonomy ) ){
+            register_taxonomy(
+                $taxonomy,
+                'product_variation',
+                array(
+                    'hierarchical' => false,
+                    'label' => ucfirst( $attribute ),
+                    'query_var' => true,
+                    'rewrite' => array( 'slug' => sanitize_title($attribute) ), // The base slug
+                ),
+            );
+        }
+
+        // Check if the Term name exist and if not we create it.
+        if( ! term_exists( $term_name, $taxonomy ) )
+            wp_insert_term( $term_name, $taxonomy ); // Create the term
+
+        $term_slug = get_term_by('name', $term_name, $taxonomy )->slug; // Get the term slug
+
+        // Get the post Terms names from the parent variable product.
+        $post_term_names =  wp_get_post_terms( $product_id, $taxonomy, array('fields' => 'names') );
+
+        // Check if the post term exist and if not we set it in the parent variable product.
+        if( ! in_array( $term_name, $post_term_names ) )
+            wp_set_post_terms( $product_id, $term_name, $taxonomy, true );
+
+        // Set/save the attribute data in the product variation
+        update_post_meta( $variation_id, 'attribute_'.$taxonomy, $term_slug );
+    }
+
+    ## Set/save all other data
+
+    // SKU
+    if( ! empty( $variation_data['sku'] ) )
+        $variation->set_sku( $variation_data['sku'] );
+
+    // Prices
+    if( empty( $variation_data['sale_price'] ) ){
+        $variation->set_price( $variation_data['regular_price'] );
+    } else {
+        $variation->set_price( $variation_data['sale_price'] );
+        $variation->set_sale_price( $variation_data['sale_price'] );
+    }
+    $variation->set_regular_price( $variation_data['regular_price'] );
+
+    // Stock
+    if( ! empty($variation_data['stock_qty']) ){
+        $variation->set_stock_quantity( $variation_data['stock_qty'] );
+        $variation->set_manage_stock(true);
+        $variation->set_stock_status('');
+    } else {
+        $variation->set_manage_stock(false);
+    }
+
+    $variation->set_weight(''); // weight (reseting)
+
+    $variation->save(); // Save the data
+}
+
+function make_variation_product( $parent_id ){
+// The variation data
+    $variation_data =  array(
+        'attributes' => array(
+            'size'  => 'M',
+            'color' => 'Green',
+        ),
+        'sku'           => '',
+        'regular_price' => '22.00',
+        'sale_price'    => '',
+        'stock_qty'     => 10,
+    );
+
+// The function to be run
+    create_product_variation( $parent_id, $variation_data );
+}
+
 function insert_fake_post( $total_product, $product_type ){
     global $wpdb ;
 
@@ -48,7 +149,8 @@ function insert_fake_post( $total_product, $product_type ){
         $post_status = "publish";
         $post_type = "product";
         $post_content = generateRandomString( 200 );
-        $wpdb->insert( $post_table, array('post_title'=>$title, 'post_author'=>1, 'post_name'=>$post_name ,'post_status'=> $post_status, 'post_type'=>$post_type, 'post_date'=>$current_date_time, 'post_date_gmt'=> $current_date_time, 'post_content'=>$post_content, 'post_excerpt'=> $post_content ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) );
+        $post_excerpt = generateRandomString( 50 );
+        $wpdb->insert( $post_table, array('post_title'=>$title, 'post_author'=>1, 'post_name'=>$post_name ,'post_status'=> $post_status, 'post_type'=>$post_type, 'post_date'=>$current_date_time, 'post_date_gmt'=> $current_date_time, 'post_content'=>$post_content, 'post_excerpt'=> $post_excerpt ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) );
         $product_id = $wpdb->insert_id;
 
         if( $product_id ){
@@ -59,6 +161,8 @@ function insert_fake_post( $total_product, $product_type ){
                 '_regular_price'=>$regular_price,
                 '_sale_price'=>$regular_price,
                 '_stock_status'=>'instock',
+                '_stock'=>100,
+                '_manage_stock'=>'yes',
                 '_thumbnail_id'=>12526,
                 '_sku'=>generateRandomString(8),
                 '_product_version'=>'7.2.1',
@@ -89,6 +193,10 @@ function insert_fake_post( $total_product, $product_type ){
             $tag_ids = array(47);
             wp_set_object_terms( $product_id, $cat_ids, 'product_cat', true );
             wp_set_object_terms( $product_id, $tag_ids, 'product_tag', true );
+        }
+
+        if( $product_type === 'variable' ){
+            make_variation_product( $product_id );
         }
 
         if( $i === $total_product){
