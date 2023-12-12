@@ -1,5 +1,4 @@
 <?php
-
 function generateRandomString( $length ) {
 
     $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -49,7 +48,7 @@ function insert_fake_post( $total_product, $product_type ){
         $post_status = "publish";
         $post_type = "product";
         $post_content = generateRandomString( 200 );
-        $wpdb->insert( $post_table, array('post_title'=>$title, 'post_name'=>$post_name ,'post_status'=> $post_status, 'post_type'=>$post_type, 'post_date'=>$current_date_time, 'post_date_gmt'=> $current_date_time, 'post_content'=>$post_content ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) );
+        $wpdb->insert( $post_table, array('post_title'=>$title, 'post_author'=>1, 'post_name'=>$post_name ,'post_status'=> $post_status, 'post_type'=>$post_type, 'post_date'=>$current_date_time, 'post_date_gmt'=> $current_date_time, 'post_content'=>$post_content, 'post_excerpt'=> $post_content ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) );
         $product_id = $wpdb->insert_id;
 
         if( $product_id ){
@@ -60,9 +59,10 @@ function insert_fake_post( $total_product, $product_type ){
                 '_regular_price'=>$regular_price,
                 '_sale_price'=>$regular_price,
                 '_stock_status'=>'instock',
-                '_thumbnail_id'=>5,
+                '_thumbnail_id'=>12526,
                 '_sku'=>generateRandomString(8),
-                '_product_version'=>'7.2.1'
+                '_product_version'=>'7.2.1',
+                '_product_image_gallery'=>'12527,12497,12496',
             );
             foreach ( $post_meta_fields as $key => $value ){
 
@@ -82,8 +82,13 @@ function insert_fake_post( $total_product, $product_type ){
 
             }
             if( $product_type !== ""){
-                wp_set_object_terms( $product_id, $product_type, 'product_type', true );
+                wp_set_object_terms( $product_id, $product_type, 'product_type' );
             }
+
+            $cat_ids = array(16);
+            $tag_ids = array(47);
+            wp_set_object_terms( $product_id, $cat_ids, 'product_cat', true );
+            wp_set_object_terms( $product_id, $tag_ids, 'product_tag', true );
         }
 
         if( $i === $total_product){

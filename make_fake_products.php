@@ -21,6 +21,14 @@ if (!defined('ABSPATH')) {
 }
 define( 'WOODUMMY_PATH', plugin_dir_path(__FILE__ ) );
 add_action( 'admin_menu',  'my_plugin_menu' );
+require "functions/make_dummy_products.php";
+
+function utm_user_scripts() {
+    $plugin_url = plugin_dir_url( __FILE__ );
+
+    wp_enqueue_style( 'style',  $plugin_url . "/assets/css/dummy_product.css");
+}
+add_action( 'admin_print_styles', 'utm_user_scripts' );
 
 function my_plugin_menu(){
     add_menu_page(
@@ -33,5 +41,5 @@ function my_plugin_menu(){
 }
 
 function woo_added_dummy_products(){
-    include WOODUMMY_PATH."/make_product.php";
+    include WOODUMMY_PATH."views/make_product.php";
 }
