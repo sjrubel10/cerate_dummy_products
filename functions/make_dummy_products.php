@@ -30,7 +30,6 @@ function generateRandomString( $length ) {
 function create_product_variation( $product_id, $variation_data ){
     // Get the Variable product object (parent)
     $product = wc_get_product( $product_id );
-
     $variation_post = array(
         'post_title'  => $product->get_name(),
         'post_name'   => 'product-'.$product_id.'-variation',

@@ -29,12 +29,12 @@ if(isset($_POST['SubmitButton'])){
     <form action="#" method="post" class="form-container">
         <div class=" textfieldContainer">
             <span class="productattrText"> How Many Product Do You Want To Create? </span> <br>
-            <input type="number" name="number_product" value="2">
+            <input class="dummyselect" type="number" name="number_product" value="2">
         </div>
         <br>
         <div class="textfieldContainer">
             <span class="productattrText">Select Product Type</span><br>
-            <select id="product-type" name="product-type">
+            <select class="dummyinput" id="product-type" name="product-type">
                 <optgroup label="Product Type">
                     <option value="simple" selected="selected">Simple product</option>
                     <option value="grouped">Grouped product</option>
