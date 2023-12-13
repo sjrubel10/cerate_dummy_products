@@ -24,6 +24,36 @@ function get_images_for_product( $number_of_image ){
     return $imagepointer_str;
 }
 
+function get_all_product_categories( $number_of_image ){
+    $categories =  get_categories(array('hide_empty' => 0,'taxonomy' => array('category', 'product_cat')));
+    if( count( $categories )>0 ){
+        foreach ($categories as $categorie) {
+            $categorie_ids[] = $categorie->term_id;
+        }
+        $categorie_ids = array_flip( $categorie_ids );
+        $random_categorie_id[] = array_rand( $categorie_ids, $number_of_image );
+    }else{
+        $random_categorie_id = [];
+    }
+
+    return $random_categorie_id;
+}
+function get_all_product_tags( $number_of_tag ){
+    $args = array( 'taxonomy' => 'product_tag' );
+    $tags = get_tags( $args );
+    if( count( $tags )>0 ){
+        foreach ($tags as $tag) {
+            $tag_ids[] = $tag->term_id;
+        }
+        $tag_ids = array_flip($tag_ids);
+        $random_tag_id[] = array_rand(  $tag_ids , $number_of_tag );
+    }else{
+        $random_tag_id = [];
+    }
+
+    return $random_tag_id;
+}
+
 function generateRandomString( $length ) {
 
     $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -213,8 +243,8 @@ function insert_fake_post( $total_product, $product_type ){
                 wp_set_object_terms( $product_id, $product_type, 'product_type' );
             }
 
-            $cat_ids = array(16);
-            $tag_ids = array(47);
+            $cat_ids = get_all_product_categories( 1 );
+            $tag_ids = get_all_product_tags( 1 );
             wp_set_object_terms( $product_id, $cat_ids, 'product_cat', true );
             wp_set_object_terms( $product_id, $tag_ids, 'product_tag', true );
         }
@@ -288,59 +318,5 @@ function wh_deleteProduct( $id, $force = FALSE )
     return true;
 }
 
-function create_simple_product() {
-    // that's CRUD object
-    $product = new \WC_Product_Simple();
-
-    error_log( print_r( $product, true ) );
-    die();
-
-    $product->set_name( 'Single' ); // product title
-    $product->set_id( 25 ); // product id
-
-    $product->set_slug( 'woo-single' );
-    $product->set_sku( 'woo-single' );
-
-    $product->set_regular_price( 3.00 ); // in current shop currency
-    $product->set_price( 3.00 ); // in current shop currency
-
-    //you can also add a full product description
-    $product->set_description( 'This is a simple, virtual product.' );
-
-    $product->set_image_id( 90 );
-
-    // let's suppose that our 'Accessories' category has ID = 19
-    $product->set_category_ids( array( 20 ) );
-    // you can also use $product->set_tag_ids() for tags, brands etc
-    $product->set_tag_ids( array( 30, 40 ) );
-
-    // Set Price
-    $product->set_sale_price( 2.00 );
-    // Sale schedule
-    $product->set_date_on_sale_from( '2022-05-01' );
-    $product->set_date_on_sale_to( '2022-05-31' );
-
-
-    // You do not need it if you manage stock at product level (below)
-    $product->set_stock_status( 'instock' ); // 'instock', 'outofstock' or 'onbackorder'
-
-    // Stock management at product level
-    $product->set_manage_stock( true );
-    $product->set_stock_quantity( 5 );
-    $product->set_backorders( 'no' ); // 'yes', 'no' or 'notify'
-    $product->set_low_stock_amount( 2 );
-    //
-    $product->set_sold_individually( true );
-
-    // Dimensions and Shipping
-    $product->set_weight( 0.5 );
-    $product->set_length( 50 );
-    $product->set_width( 50 );
-    $product->set_height( 30 );
-
-    $product->save();
-
-    return $product;
-}
 
 
