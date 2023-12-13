@@ -1,4 +1,29 @@
 <?php
+
+function get_images_for_product( $number_of_image ){
+    $args = array(
+        'post_type' => 'attachment',
+        'post_status' => 'inherit',
+    );
+    $attachments = get_posts($args);
+    foreach ($attachments as $attachment) {
+        $indexArray[] = $attachment->ID;
+    }
+    $randomKeys = array_rand($indexArray, $number_of_image); // Get 5 random keys from the array
+    if( $number_of_image === 1 ){
+        $randomElements[] = $indexArray[$randomKeys];
+    }else{
+        $randomElements = array_intersect_key($indexArray, array_flip($randomKeys));
+    }
+
+    if( count( $randomElements )> 0 ){
+        $imagepointer_str = implode(',', $randomElements);
+    }else{
+        $imagepointer_str = '';
+    }
+    return $imagepointer_str;
+}
+
 function generateRandomString( $length ) {
 
     $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -115,7 +140,7 @@ function make_variation_product( $parent_id ){
     $variation_data =  array(
         'attributes' => array(
             'size'  => 'M',
-            'color' => 'Green',
+            'color' => 'Blue',
         ),
         'sku'           => '',
         'regular_price' => '22.00',
@@ -162,10 +187,10 @@ function insert_fake_post( $total_product, $product_type ){
                 '_stock_status'=>'instock',
                 '_stock'=>100,
                 '_manage_stock'=>'yes',
-                '_thumbnail_id'=>12526,
+                '_thumbnail_id'=>get_images_for_product(1),
                 '_sku'=>generateRandomString(8),
                 '_product_version'=>'7.2.1',
-                '_product_image_gallery'=>'12527,12497,12496',
+                '_product_image_gallery'=>get_images_for_product(3),
             );
             foreach ( $post_meta_fields as $key => $value ){
 
