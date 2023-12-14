@@ -10,7 +10,7 @@ $args = Array(
             'order_by' => 'menu_order',
             'has_archives' => 0
         );
-//wc_create_attribute( $args );
+wc_create_attribute( $args );
 
 if(isset($_POST['SubmitButton'])){
 
