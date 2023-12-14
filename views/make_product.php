@@ -3,6 +3,15 @@
 $number_product = 0;
 $is_block = 'none';
 
+$args = Array(
+            'name' => 'Name Group',
+            'slug' => 'name-group',
+            'type' => 'select',
+            'order_by' => 'menu_order',
+            'has_archives' => 0
+        );
+//wc_create_attribute( $args );
+
 if(isset($_POST['SubmitButton'])){
 
     $number_product = sanitize_title( (int)$_POST["number_product"] );

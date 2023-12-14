@@ -81,7 +81,21 @@ function generateRandomString( $length ) {
 
     return $outputString;
 }
+function insert_into_wp_term_relationships($object_id, $term_taxonomy_id, $term_order) {
+    global $wpdb;
 
+    $table_name = $wpdb->prefix . 'term_relationships';
+
+    $data = array(
+        'object_id'         => $object_id,
+        'term_taxonomy_id'  => $term_taxonomy_id,
+        'term_order'        => $term_order,
+    );
+
+    $format = array('%d', '%d', '%d');
+
+    $wpdb->insert($table_name, $data, $format);
+}
 function create_product_variation( $product_id, $variation_data ){
     // Get the Variable product object (parent)
     $product = wc_get_product( $product_id );
@@ -316,6 +330,15 @@ function wh_deleteProduct( $id, $force = FALSE )
         wc_delete_product_transients($parent_id);
     }
     return true;
+}
+
+function add_attributes_process(){
+    $woo_attr_tanxo_table = 'wp_woocommerce_attribute_taxonomies';
+    $attr_value_insrt_term_tbl = 'wp_terms';
+    $relation_term_with_term_taxonmy = 'wp_term_taxonomy';
+
+    //Added with product
+    $table= 'wp_term_relationships';
 }
 
 
