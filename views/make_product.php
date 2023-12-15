@@ -10,7 +10,10 @@ $args = Array(
             'order_by' => 'menu_order',
             'has_archives' => 0
         );
-wc_create_attribute( $args );
+//wc_create_attribute( $args );
+
+//$value = get_post_meta( 24857, '_product_attributes', true );
+//error_log( print_r( ['$value'=>$value], true )) ;
 
 if(isset($_POST['SubmitButton'])){
 

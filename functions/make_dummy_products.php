@@ -111,9 +111,10 @@ function create_product_variation( $product_id, $variation_data ){
         'guid'        => $product->get_permalink()
     );
 
-    error_log( print_r( ['$variation_post'=>$variation_post], true ) );
+
     // Creating the product variation
     $variation_id = wp_insert_post( $variation_post );
+    error_log( print_r( [ '$variation_id'=>$variation_id, '$product_id'=>$product_id ], true ) );
 
     // Get an instance of the WC_Product_Variation object
     $variation = new WC_Product_Variation( $variation_id );
@@ -268,6 +269,26 @@ function insert_fake_post( $total_product, $product_type ){
         }
 
         if( $product_type === 'variable' ){
+
+            $array_data = [
+                'pa_color' => [
+                    'name' => 'pa_color',
+                    'value' => '',
+                    'position' => 0,
+                    'is_visible' => 1,
+                    'is_variation' => 1,
+                    'is_taxonomy' => 1,
+                ],
+                'pa_size' => [
+                    'name' => 'pa_size',
+                    'value' => '',
+                    'position' => 1,
+                    'is_visible' => 1,
+                    'is_variation' => 1,
+                    'is_taxonomy' => 1,
+                ],
+            ];
+            update_post_meta( $product_id, '_product_attributes', $array_data);
             make_variation_product( $product_id );
         }
 
